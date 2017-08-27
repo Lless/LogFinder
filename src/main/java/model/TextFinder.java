@@ -4,8 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-//TODO: analyze algorithm
-class Finder {
+//TODO: change implementation.
+//TODO: fix  bug with whitespaces
+class TextFinder {
     static List<Long> find(Readable text, String pattern) {
         Scanner scanner = new Scanner(text);
         List<Long> indexes = new ArrayList<>();

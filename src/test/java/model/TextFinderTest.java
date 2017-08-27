@@ -7,12 +7,13 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
-import static model.Finder.find;
+import static model.TextFinder.find;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 
-public class FinderTest {
+public class TextFinderTest {
     @Test
     public void find11In111211Is014() {
         Reader text = new StringReader("111211");
@@ -30,6 +31,15 @@ public class FinderTest {
     public void findMissingInTextIsEmpty() {
         Reader text = new StringReader("aaa");
         String pattern = "bb";
-        assertTrue(find(text,pattern).isEmpty());
+        List<Long> result = find(text, pattern);
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    public void findWithWhiteSpaces() {
+        Reader text = new StringReader("aa bb");
+        String pattern = "a b";
+        List<Long> result = find(text, pattern);
+        assertFalse(result.isEmpty());
     }
 }
