@@ -7,29 +7,28 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
 
-//Todo: Test this!
 //Todo: Add logging
-public class FileFinder {
+class FileFinder {
 
-    private File catalog;
-    private String filename;
+    private File dir;
+    private String extention;
     private List<File> files;
 
-    public FileFinder(File catalog, String filename) {
-        this.catalog = catalog;
-        this.filename = filename;
+    FileFinder(File dir, String extention) {
+        this.dir = dir;
+        this.extention = extention;
     }
 
-    public List<File> find() {
+    List<File> find() {
         if (files == null)
             try {
-                files = Files.walk(catalog.toPath())
+                files = Files.walk(dir.toPath())
                         .filter(Files::isRegularFile)
                         .map(Path::toFile)
-                        .filter(f -> f.getName().matches(filename))
+                        .filter(f -> f.getName().matches(".*\\." + extention))
                         .collect(Collectors.toList());
-            } catch (IOException ex) {
-                System.out.println(ex);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         return files;
     }
