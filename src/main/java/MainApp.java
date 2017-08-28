@@ -11,14 +11,14 @@ public class MainApp extends Application {
         launch(args);
     }
 
-    //Todo: Icon!
     @Override
     public void start(Stage stage) throws Exception {
         String fxmlfile = "fxml/application.fxml";
         FXMLLoader loader = new FXMLLoader();
         Parent root = loader.load(getClass().getResourceAsStream(fxmlfile));
         stage.setTitle("Log Finder");
-        stage.getIcons().add(new Image("file:resources/png/Log64.png"));
+        stage.getIcons().add(new Image(getClass().getResourceAsStream("png/Log128.png")));
+        stage.getIcons().add(new Image(getClass().getResourceAsStream("png/Log20.png")));
         stage.setScene(new Scene(root));
         stage.show();
     }
