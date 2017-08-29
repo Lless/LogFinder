@@ -8,6 +8,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TreeView;
 import javafx.stage.DirectoryChooser;
+import model.FileManager;
 import model.FileModel;
 
 import java.io.File;
@@ -48,8 +49,7 @@ public class ApplicationController {
     }
 
     private void startSearch(){
-        text.appendText("search started");
-        //doSomething(extention.getText(),pattern.getText(),directory);
+        FileManager.getResults(extention.getText(),pattern.getText(),directory,files);
     }
     @FXML
     private void showNext(){

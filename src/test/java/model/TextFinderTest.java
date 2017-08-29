@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static junit.framework.TestCase.assertFalse;
-import static model.TextFinder.find;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -22,7 +21,7 @@ public class TextFinderTest {
         expected.add(0L);
         expected.add(1L);
         expected.add(4L);
-        List<Long> actual = find(text, pattern);
+        List<Long> actual = new TextFinder(pattern).find(text);
         assertEquals(expected.size(),actual.size());
         assertTrue(expected.containsAll(actual));
     }
@@ -31,7 +30,7 @@ public class TextFinderTest {
     public void find1in222isEmpty(){
         Reader text = new StringReader("222");
         String pattern = "1";
-        List<Long> result = find(text,pattern);
+        List<Long> result = new TextFinder(pattern).find(text);
         assertTrue(result.isEmpty());
     }
 
@@ -39,7 +38,7 @@ public class TextFinderTest {
     public void findWithDelimiters() {
         Reader text = new StringReader("aa \nbb");
         String pattern = "a \nb";
-        List<Long> result = find(text, pattern);
+        List<Long> result = new TextFinder(pattern).find(text);
         assertFalse(result.isEmpty());
     }
 }
