@@ -1,11 +1,14 @@
 package controller;
 
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TreeView;
 import javafx.stage.DirectoryChooser;
+import model.FileModel;
 
 import java.io.File;
 
@@ -27,15 +30,19 @@ public class ApplicationController {
     private TreeView fileTree;
 
     private File directory;
+    private ObservableList<FileModel> files;
 
     @FXML
     private void initialize(){
         fileTree.getSelectionModel().selectedIndexProperty().addListener(
                 (observable, oldvalue, newvalue) -> this.setText(newvalue) );
         Platform.runLater( () -> filepath.requestFocus() );
+        files = FXCollections.observableArrayList();
     }
 
     //Todo: implement
+    private void setTreeNode(File f){}
+
     private void setText(Number index){
         text.appendText("pressed tree node №"+index);
     }

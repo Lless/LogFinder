@@ -7,6 +7,7 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import static junit.framework.TestCase.assertFalse;
 import static model.TextFinder.find;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -27,18 +28,18 @@ public class TextFinderTest {
     }
 
     @Test
-    public void findMissingInTextIsEmpty() {
-        Reader text = new StringReader("aaa");
-        String pattern = "bb";
-        List<Long> result = find(text, pattern);
+    public void find1in222isEmpty(){
+        Reader text = new StringReader("222");
+        String pattern = "1";
+        List<Long> result = find(text,pattern);
         assertTrue(result.isEmpty());
     }
 
-    /*@Test
-    public void findWithWhiteSpaces() {
-        Reader text = new StringReader("aa bb");
-        String pattern = "a b";
+    @Test
+    public void findWithDelimiters() {
+        Reader text = new StringReader("aa \nbb");
+        String pattern = "a \nb";
         List<Long> result = find(text, pattern);
         assertFalse(result.isEmpty());
-    }*/
+    }
 }
