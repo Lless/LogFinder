@@ -1,0 +1,9 @@
+Implement buttons and textarea highlighting
+Add logging
+Fix bug with gui freezing when searching throw big folder
+Fix bug with not finding files in big folder
+refactor code.
+Test FileManager
+Test ApplicationController
+Change Textfinder implementation
+

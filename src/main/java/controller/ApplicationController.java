@@ -27,7 +27,7 @@ public class ApplicationController {
     private TextField filepath;
 
     @FXML
-    private TextArea text;
+    private TabPane pane;
 
     @FXML
     private TreeView<String> fileTree;
@@ -45,6 +45,7 @@ public class ApplicationController {
     private Map<File, TreeItem<String>> folders = new HashMap<>();
     private Map<TreeItem<String>, FileInfo> files = new HashMap<>();
     private TreeItemComparator comparator = new TreeItemComparator();
+
     @FXML
     private void initialize() {
         fileTree.getSelectionModel().selectedItemProperty().addListener(
@@ -57,20 +58,25 @@ public class ApplicationController {
     private void addFileToTree(FileInfo f) {
         File parent = f.getFile().getParentFile();
         TreeItem<String> newNode = new TreeItem<>(f.getFile().getName());
-        TreeItem<String> parentNode = folders.containsKey(parent) ?
-                folders.get(parent) : addFolderToTree(parent);
-        parentNode.getChildren().add(newNode);
+        TreeItem<String> parentNode;
+        if (folders.containsKey(parent)) {
+            parentNode = folders.get(parent);
+            parentNode.getChildren().add(newNode);
+        } else parentNode = addFolderToTree(parent, newNode);
         parentNode.getChildren().sort(comparator);
         files.put(newNode, f);
 
     }
 
-    private TreeItem<String> addFolderToTree(File f) {
+    private TreeItem<String> addFolderToTree(File f, TreeItem<String> nextNode) {
         File parent = f.getParentFile();
         TreeItem<String> newNode = new TreeItem<>(f.getName());
-        TreeItem<String> parentNode = folders.containsKey(parent) ?
-                folders.get(parent) : addFolderToTree(parent);
-        parentNode.getChildren().add(newNode);
+        newNode.getChildren().add(nextNode);
+        TreeItem<String> parentNode;
+        if (folders.containsKey(parent)) {
+            parentNode = folders.get(parent);
+            parentNode.getChildren().add(newNode);
+        } else parentNode = addFolderToTree(parent, newNode);
         parentNode.getChildren().sort(comparator);
         folders.put(f, newNode);
         return newNode;
@@ -80,11 +86,30 @@ public class ApplicationController {
         Platform.runLater(() -> addFileToTree(info));
     }
 
+    private TextArea addNewTab(String name) {
+        Tab tab = new Tab();
+        tab.setText(name);
+        TextArea text = new TextArea();
+        text.editableProperty().setValue(false);
+        text.wrapTextProperty().setValue(true);
+        tab.setContent(text);
+        pane.getTabs().add(tab);
+        pane.getSelectionModel().select(tab);
+        return text;
+    }
+
+    private void enableButtons(boolean flag){
+        next.disableProperty().setValue(flag);
+        prev.disableProperty().setValue(flag);
+        selectAll.disableProperty().setValue(flag);
+    }
+
+
     private void setText(TreeItem<String> item) {
-        text.clear();
         if (files.containsKey(item)) {
+            enableButtons(true);
             FileInfo info = files.get(item);
-            text.appendText("choosed file " + info.getFile().getName() + "\n");
+            TextArea text = addNewTab(info.getFile().getName());
             try {
                 BufferedReader reader = new BufferedReader(new FileReader(info.getFile()));
                 String line;
@@ -108,21 +133,14 @@ public class ApplicationController {
     }
 
     @FXML
-    private void showNext() {
-        text.appendText("showNextPressed\n");
-    }
+    private void showNext() { }
 
     @FXML
-    private void showPrev() {
-        text.appendText("showPrevPressed\n");
-    }
+    private void showPrev() { }
 
     @FXML
-    private void selectAll() {
-        text.appendText("SelectAllPressed\n");
-    }
+    private void selectAll() { }
 
-    //todo: test
     @FXML
     private void checkFields() {
         if (extention.getText().isEmpty()) {

@@ -7,7 +7,6 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
 
-//Todo: Add logging
 class FileFinder {
 
     private File dir;

@@ -9,7 +9,6 @@ import java.util.List;
 
 import static java.lang.Math.max;
 
-//TODO: change implementation.
 class TextFinder {
 
     TextFinder(String pattern) {
