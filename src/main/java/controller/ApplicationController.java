@@ -8,10 +8,7 @@ import model.FileInfo;
 import model.FileManager;
 import model.TreeItemComparator;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,7 +24,7 @@ public class ApplicationController {
     private TextField filepath;
 
     @FXML
-    private TabPane pane;
+    private TabPane tabPane;
 
     @FXML
     private TreeView<String> fileTree;
@@ -41,9 +38,11 @@ public class ApplicationController {
     @FXML
     private Button selectAll;
 
+    private int currentPatternLength;
     private File directory;
     private Map<File, TreeItem<String>> folders = new HashMap<>();
     private Map<TreeItem<String>, FileInfo> files = new HashMap<>();
+    private Map<Tab, TabController> tabMap = new HashMap<>();
     private TreeItemComparator comparator = new TreeItemComparator();
 
     @FXML
@@ -86,60 +85,44 @@ public class ApplicationController {
         Platform.runLater(() -> addFileToTree(info));
     }
 
-    private TextArea addNewTab(String name) {
-        Tab tab = new Tab();
-        tab.setText(name);
-        TextArea text = new TextArea();
-        text.editableProperty().setValue(false);
-        text.wrapTextProperty().setValue(true);
-        tab.setContent(text);
-        pane.getTabs().add(tab);
-        pane.getSelectionModel().select(tab);
-        return text;
-    }
-
-    private void enableButtons(boolean flag){
+    private void enableButtons(boolean flag) {
         next.disableProperty().setValue(flag);
         prev.disableProperty().setValue(flag);
         selectAll.disableProperty().setValue(flag);
     }
 
-
     private void setText(TreeItem<String> item) {
         if (files.containsKey(item)) {
             enableButtons(true);
-            FileInfo info = files.get(item);
-            TextArea text = addNewTab(info.getFile().getName());
-            try {
-                BufferedReader reader = new BufferedReader(new FileReader(info.getFile()));
-                String line;
-                while ((line = reader.readLine()) != null)
-                    text.appendText(line);
-                text.appendText("\n");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            for (Long l : info.getIndices())
-                text.appendText(l.toString() + " ");
+            TabController controller = new TabController(tabPane,files.get(item),currentPatternLength);
+            tabMap.put(controller.getTab(),controller);
+            controller.setText();
         }
     }
 
     private void startSearch() {
         if (!files.isEmpty()) files.clear();
         if (!folders.isEmpty()) folders.clear();
+        currentPatternLength = pattern.getText().length();
         fileTree.setRoot(new TreeItem<>(directory.getName()));
         folders.put(directory, fileTree.getRoot());
         FileManager.getResults(extention.getText(), pattern.getText(), directory, this::consumeFileInfo);
     }
 
     @FXML
-    private void showNext() { }
+    private void showNext() {
+        tabMap.get(tabPane.getSelectionModel().getSelectedItem()).markNext();
+    }
 
     @FXML
-    private void showPrev() { }
+    private void showPrev() {
+        tabMap.get(tabPane.getSelectionModel().getSelectedItem()).markPrev();
+    }
 
     @FXML
-    private void selectAll() { }
+    private void selectAll() {
+        tabMap.get(tabPane.getSelectionModel().getSelectedItem()).markAll();
+    }
 
     @FXML
     private void checkFields() {
