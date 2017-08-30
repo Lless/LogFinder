@@ -4,6 +4,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
+import model.FileManager;
 
 public class MainApp extends Application {
 
@@ -20,6 +21,8 @@ public class MainApp extends Application {
         stage.getIcons().add(new Image(getClass().getResourceAsStream("png/Log128.png")));
         stage.getIcons().add(new Image(getClass().getResourceAsStream("png/Log20.png")));
         stage.setScene(new Scene(root));
+        stage.setOnCloseRequest((event)-> FileManager.close());
         stage.show();
+
     }
 }

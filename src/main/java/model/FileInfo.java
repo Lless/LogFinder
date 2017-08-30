@@ -3,11 +3,11 @@ package model;
 import java.io.File;
 import java.util.List;
 
-public class FileModel {
+public class FileInfo {
     private File file;
     private List<Long> indices;
 
-    public FileModel(File file, List<Long> indices) {
+    FileInfo(File file, List<Long> indices) {
         this.file = file;
         this.indices = indices;
     }

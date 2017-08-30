@@ -15,7 +15,7 @@
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.ApplicationController">
 
     <left>
-        <TreeView fx:id="fileTree" prefHeight="305.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
+        <TreeView fx:id="fileTree" prefHeight="305.0" prefWidth="200.0" showRoot="false" BorderPane.alignment="CENTER" />
     </left>
     <center>
         <BorderPane prefHeight="341.0" prefWidth="400.0" BorderPane.alignment="CENTER">
