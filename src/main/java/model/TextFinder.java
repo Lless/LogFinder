@@ -23,15 +23,15 @@ class TextFinder {
     private final String pattern;
     private volatile boolean stop = false;
 
-    List<Long> find(Reader textReader) {
+    List<Integer> find(Reader textReader) {
         char[] buf = new char[max(pattern.length() * 5, 1024)]; //keeps loaded chars
         char[] smBuf = new char[pattern.length() - 1];//keeps last part of previous buffer
 
-        List<Long> indices = new ArrayList<>();
+        List<Integer> indices = new ArrayList<>();
 
         try (BufferedReader reader = new BufferedReader(textReader)) {
             //number of symbols that we have read before
-            long offset = 0;
+            int offset = 0;
             reader.read(smBuf, 0, smBuf.length);
             int haveRead;
             while ((haveRead = reader.read(buf, 0, buf.length)) != -1) {

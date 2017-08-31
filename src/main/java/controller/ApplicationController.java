@@ -6,7 +6,6 @@ import javafx.scene.control.*;
 import javafx.stage.DirectoryChooser;
 import model.FileInfo;
 import model.FileManager;
-import model.TreeItemComparator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,50 +42,20 @@ public class ApplicationController {
 
     private int currentPatternLength;
     private File folder;
-    private Map<File, TreeItem<String>> folders = new HashMap<>();
-    private Map<TreeItem<String>, FileInfo> files = new HashMap<>();
     private Map<Tab, TabController> tabMap = new HashMap<>();
-    private TreeItemComparator comparator = new TreeItemComparator();
+    private TreeController treeController;
 
     @FXML
     private void initialize() {
         fileTree.getSelectionModel().selectedItemProperty().addListener(
                 (observable, oldvalue, newvalue) -> this.setText(newvalue));
         Platform.runLater(() -> filepath.requestFocus());
-        /*text.textProperty().addListener(
-                (observable, oldvalue, newvalue) -> text.setScrollTop(Double.MAX_VALUE));*/
+        tabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldvalue, newvalue) -> {
+            if (tabPane.getTabs().isEmpty())
+                disableButtons(true);
+        });
     }
 
-    private void addFileToTree(FileInfo f) {
-        File parent = f.getFile().getParentFile();
-        TreeItem<String> newNode = new TreeItem<>(f.getFile().getName());
-        TreeItem<String> parentNode;
-        if (folders.containsKey(parent)) {
-            parentNode = folders.get(parent);
-            parentNode.getChildren().add(newNode);
-        } else parentNode = addFolderToTree(parent, newNode);
-        parentNode.getChildren().sort(comparator);
-        files.put(newNode, f);
-
-    }
-
-    private TreeItem<String> addFolderToTree(File f, TreeItem<String> nextNode) {
-        File parent = f.getParentFile();
-        TreeItem<String> newNode = new TreeItem<>(f.getName());
-        newNode.getChildren().add(nextNode);
-        TreeItem<String> parentNode;
-        if (folders.containsKey(parent)) {
-            parentNode = folders.get(parent);
-            parentNode.getChildren().add(newNode);
-        } else parentNode = addFolderToTree(parent, newNode);
-        parentNode.getChildren().sort(comparator);
-        folders.put(f, newNode);
-        return newNode;
-    }
-
-    private void consumeFileInfo(FileInfo info) {
-        Platform.runLater(() -> addFileToTree(info));
-    }
 
     private void disableButtons(boolean flag) {
         log.debug("Buttons " + (flag ? "disabled" : "enabled"));
@@ -96,22 +65,18 @@ public class ApplicationController {
     }
 
     private void setText(TreeItem<String> item) {
-        if (files.containsKey(item)) {
-            disableButtons(false);
-            log.info("File selected: " + files.get(item).getFile().getAbsolutePath());
-            TabController controller = new TabController(tabPane, files.get(item), currentPatternLength);
-            tabMap.put(controller.getTab(), controller);
-            controller.setText();
-        }
+        disableButtons(false);
+        FileInfo info = treeController.getFileInfo(item);
+        log.info("File selected: " + info.getFile().getAbsolutePath());
+        TabController controller = new TabController(tabPane, info, currentPatternLength);
+        tabMap.put(controller.getTab(), controller);
+        controller.setText();
     }
 
     private void startSearch() {
-        if (!files.isEmpty()) files.clear();
-        if (!folders.isEmpty()) folders.clear();
+        treeController = new TreeController(fileTree, folder);
         currentPatternLength = pattern.getText().length();
-        fileTree.setRoot(new TreeItem<>(folder.getName()));
-        folders.put(folder, fileTree.getRoot());
-        FileManager.getResults(extention.getText(), pattern.getText(), folder, this::consumeFileInfo);
+        FileManager.getResults(extention.getText(), pattern.getText(), folder, treeController::consumeFileInfo);
     }
 
     @FXML

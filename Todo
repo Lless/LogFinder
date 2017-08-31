@@ -1,8 +1,9 @@
-Implement buttons and textarea highlighting
+Fix bug with textview going to end file when highlighting
 Fix bug with gui freezing when searching throw big folder
 Fix bug with not finding files in big folder
-refactor code.
+refactor code
 Test FileManager
 Test ApplicationController
+Test TabController
 Change Textfinder implementation
-
+implement opening big files

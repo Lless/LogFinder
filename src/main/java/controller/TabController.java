@@ -14,14 +14,13 @@ import java.io.IOException;
 
 class TabController {
     private static final Logger log = LoggerFactory.getLogger(TabController.class);
-    private Long[] indices;
+    private Integer[] Entries;
     private File file;
     private int curIndex;
     private final int markLength;
     private boolean allMarked = false;
     private InlineCssTextArea textArea;
     private Tab tab;
-
     TabController(TabPane tabPane, FileInfo info, int markLength) {
         Tab tab = new Tab();
         tab.setText(info.getFile().getName());
@@ -35,8 +34,8 @@ class TabController {
         textArea = text;
         this.markLength = markLength;
         this.tab = tab;
-        this.indices = new Long[info.getIndices().size()];
-        this.indices = info.getIndices().toArray(indices);
+        this.Entries = new Integer[info.getIndices().size()];
+        this.Entries = info.getIndices().toArray(Entries);
         this.file = info.getFile();
     }
 
@@ -46,38 +45,51 @@ class TabController {
 
     void markNext() {
         unmark();
-        curIndex = ++curIndex % indices.length;
+        curIndex = ++curIndex % Entries.length;
         mark(curIndex);
     }
 
     void markPrev() {
         unmark();
-        curIndex = (--curIndex+ indices.length) % indices.length;
+        curIndex = (--curIndex + Entries.length) % Entries.length;
         mark(curIndex);
     }
 
     void markAll() {
         unmark();
         if (!allMarked)
-            for (int i = 0; i < indices.length; i++)
+            for (int i = 0; i < Entries.length; i++)
                 mark(i);
         mark(curIndex);
         allMarked = !allMarked;
     }
 
     private void mark(int index) {
+        textArea.positionCaret(Entries[index]);
+        setStyle(Entries[index], "-fx-background-fill: lightblue;");
     }
 
     private void unmark() {
+        if (allMarked) {
+            for (Integer from : Entries)
+                setStyle(from, "");
+        }
+        setStyle(Entries[curIndex], "");
+    }
+
+    private void setStyle(int from, String style) {
+        textArea.setStyle(from, from + markLength, style);
     }
 
     void setText() {
         try {
             BufferedReader reader = new BufferedReader(new FileReader(file));
             String line;
-            while ((line = reader.readLine()) != null)
+            while ((line = reader.readLine()) != null) {
                 textArea.appendText(line);
-            textArea.appendText("\n");
+                textArea.appendText("\n");
+            }
+
         } catch (IOException e) {
             e.printStackTrace();
         }

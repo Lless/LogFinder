@@ -17,11 +17,11 @@ public class TextFinderTest {
     public void find11In111211Is014() {
         Reader text = new StringReader("111211");
         String pattern = "11";
-        List<Long> expected = new ArrayList<>();
-        expected.add(0L);
-        expected.add(1L);
-        expected.add(4L);
-        List<Long> actual = new TextFinder(pattern).find(text);
+        List<Integer> expected = new ArrayList<>();
+        expected.add(0);
+        expected.add(1);
+        expected.add(4);
+        List<Integer> actual = new TextFinder(pattern).find(text);
         assertEquals(expected.size(),actual.size());
         assertTrue(expected.containsAll(actual));
     }
@@ -30,7 +30,7 @@ public class TextFinderTest {
     public void find1in222isEmpty(){
         Reader text = new StringReader("222");
         String pattern = "1";
-        List<Long> result = new TextFinder(pattern).find(text);
+        List<Integer> result = new TextFinder(pattern).find(text);
         assertTrue(result.isEmpty());
     }
 
@@ -38,7 +38,7 @@ public class TextFinderTest {
     public void findWithDelimiters() {
         Reader text = new StringReader("aa \nbb");
         String pattern = "a \nb";
-        List<Long> result = new TextFinder(pattern).find(text);
+        List<Integer> result = new TextFinder(pattern).find(text);
         assertFalse(result.isEmpty());
     }
 }

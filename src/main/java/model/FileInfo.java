@@ -5,9 +5,9 @@ import java.util.List;
 
 public class FileInfo {
     private File file;
-    private List<Long> indices;
+    private List<Integer> indices;
 
-    FileInfo(File file, List<Long> indices) {
+    FileInfo(File file, List<Integer> indices) {
         this.file = file;
         this.indices = indices;
     }
@@ -16,7 +16,7 @@ public class FileInfo {
         return file;
     }
 
-    public List<Long> getIndices() {
+    public List<Integer> getIndices() {
         return indices;
     }
 }

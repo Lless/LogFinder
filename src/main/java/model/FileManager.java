@@ -59,7 +59,7 @@ public class FileManager {
                 try {
                     log.debug("Search pattern in "+f.getAbsolutePath());
                     Reader reader = new FileReader(f);
-                    List<Long> indices = finder.find(reader);
+                    List<Integer> indices = finder.find(reader);
                     if ((indices != null) && !indices.isEmpty())
                         res.add(new FileInfo(f, indices));
                 } catch (IOException ex) {
