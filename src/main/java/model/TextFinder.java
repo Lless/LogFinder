@@ -1,5 +1,8 @@
 package model;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
@@ -10,9 +13,11 @@ import java.util.List;
 import static java.lang.Math.max;
 
 class TextFinder {
+    private static final Logger log = LoggerFactory.getLogger(TextFinder.class);
 
     TextFinder(String pattern) {
         this.pattern = pattern;
+        log.debug("trying to find pattern: " + pattern);
     }
 
     private final String pattern;

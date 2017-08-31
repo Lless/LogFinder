@@ -1,5 +1,8 @@
 package model;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -9,6 +12,7 @@ import java.util.concurrent.*;
 import java.util.function.Consumer;
 
 public class FileManager {
+    private static final Logger log = LoggerFactory.getLogger(FileManager.class);
     private String extention;
     private String pattern;
     private File directory;
@@ -38,20 +42,22 @@ public class FileManager {
     }
 
     public static void close() {
+        log.warn("Closing search");
         fileManager.executorService.shutdownNow();
         fileManager.finder.close();
         fileManager.consumer.close();
     }
 
     private void startSearch() {
-        /*System.out.println("*******************************");
-        System.out.println("Search started");
-        System.out.println("*******************************");*/
+        log.info("*******************************");
+        log.info("Search started");
+        log.info("*******************************");
         List<File> files = new FileFinder(directory, extention).find();
         executorService.submit(consumer);
         for (File f : files)
             executorService.submit(() -> {
                 try {
+                    log.debug("Search pattern in "+f.getAbsolutePath());
                     Reader reader = new FileReader(f);
                     List<Long> indices = finder.find(reader);
                     if ((indices != null) && !indices.isEmpty())
@@ -60,5 +66,8 @@ public class FileManager {
                     ex.printStackTrace();
                 }
             });
+        log.info("*******************************");
+        log.info("Search ended");
+        log.info("*******************************");
     }
 }
