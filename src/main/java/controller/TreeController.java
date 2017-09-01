@@ -1,10 +1,8 @@
 package controller;
 
-import javafx.application.Platform;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
-import model.FileInfo;
-import model.TreeItemComparator;
+import util.TreeItemComparator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,11 +10,11 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-public class TreeController {
+class TreeController {
     private static final Logger log = LoggerFactory.getLogger(TreeController.class);
 
     private Map<File, TreeItem<String>> folders = new HashMap<>();
-    private Map<TreeItem<String>, FileInfo> files = new HashMap<>();
+    private Map<TreeItem<String>, File> files = new HashMap<>();
     private TreeItemComparator comparator = new TreeItemComparator();
 
     TreeController(TreeView<String> treeView, File mainFolder) {
@@ -24,20 +22,20 @@ public class TreeController {
         folders.put(mainFolder, treeView.getRoot());
     }
 
-    private void addFileToTree(FileInfo f) {
-        File parent = f.getFile().getParentFile();
-        TreeItem<String> newNode = new TreeItem<>(f.getFile().getName());
+    void addFile(File f) {
+        File parent = f.getParentFile();
+        TreeItem<String> newNode = new TreeItem<>(f.getName());
         TreeItem<String> parentNode;
         if (folders.containsKey(parent)) {
             parentNode = folders.get(parent);
             parentNode.getChildren().add(newNode);
-        } else parentNode = addFolderToTree(parent, newNode);
+        } else parentNode = addFolder(parent, newNode);
         parentNode.getChildren().sort(comparator);
         files.put(newNode, f);
-
+        log.debug("Added file "+f.getName());
     }
 
-    private TreeItem<String> addFolderToTree(File f, TreeItem<String> nextNode) {
+    private TreeItem<String> addFolder(File f, TreeItem<String> nextNode) {
         File parent = f.getParentFile();
         TreeItem<String> newNode = new TreeItem<>(f.getName());
         newNode.getChildren().add(nextNode);
@@ -45,17 +43,14 @@ public class TreeController {
         if (folders.containsKey(parent)) {
             parentNode = folders.get(parent);
             parentNode.getChildren().add(newNode);
-        } else parentNode = addFolderToTree(parent, newNode);
+        } else parentNode = addFolder(parent, newNode);
         parentNode.getChildren().sort(comparator);
         folders.put(f, newNode);
+        log.debug("Added folder "+f.getName());
         return newNode;
     }
 
-    void consumeFileInfo(FileInfo info) {
-        Platform.runLater(() -> addFileToTree(info));
-    }
-
-    FileInfo getFileInfo(TreeItem<String> item) {
+    File getFile(TreeItem<String> item) {
         return files.get(item);
     }
 }

@@ -4,7 +4,6 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.DirectoryChooser;
-import model.FileInfo;
 import model.FileManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +39,6 @@ public class ApplicationController {
     @FXML
     private Button selectAll;
 
-    private int currentPatternLength;
     private File folder;
     private Map<Tab, TabController> tabMap = new HashMap<>();
     private TreeController treeController;
@@ -48,7 +46,7 @@ public class ApplicationController {
     @FXML
     private void initialize() {
         fileTree.getSelectionModel().selectedItemProperty().addListener(
-                (observable, oldvalue, newvalue) -> this.setText(newvalue));
+                (observable, oldvalue, newvalue) -> setText(newvalue));
         Platform.runLater(() -> filepath.requestFocus());
         tabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldvalue, newvalue) -> {
             if (tabPane.getTabs().isEmpty())
@@ -66,17 +64,11 @@ public class ApplicationController {
 
     private void setText(TreeItem<String> item) {
         disableButtons(false);
-        FileInfo info = treeController.getFileInfo(item);
-        log.info("File selected: " + info.getFile().getAbsolutePath());
-        TabController controller = new TabController(tabPane, info, currentPatternLength);
+        File selected = treeController.getFile(item);
+        log.info("File selected: " + selected.getAbsolutePath());
+        TabController controller = new TabController(tabPane, selected, FileManager.getEntries(selected), FileManager.getPattern().length());
         tabMap.put(controller.getTab(), controller);
         controller.setText();
-    }
-
-    private void startSearch() {
-        treeController = new TreeController(fileTree, folder);
-        currentPatternLength = pattern.getText().length();
-        FileManager.getResults(extention.getText(), pattern.getText(), folder, treeController::consumeFileInfo);
     }
 
     @FXML
@@ -97,6 +89,12 @@ public class ApplicationController {
         log.info("btnSelectAll pressed");
     }
 
+    private void consumeFileInfo(File info) {
+        Platform.runLater(
+                () -> treeController.addFile(info)
+        );
+    }
+
     @FXML
     private void checkFields() {
         log.info("btnStart pressed");
@@ -109,13 +107,13 @@ public class ApplicationController {
                 (!folder.getName().equals(filepath.getText()))) {
             if (filepath.getText().isEmpty()) {
                 filepath.requestFocus();
-                log.debug("File not selected");
+                log.debug("Folder not selected");
                 openFolder();
                 return;
             }
             File newDir = new File(filepath.getText());
             if (!newDir.exists() || !(newDir.isDirectory())) {
-                log.info("Selected incorrect file: " + filepath.getText());
+                log.info("Selected incorrect folder: " + filepath.getText());
                 filepath.setText("");
                 filepath.requestFocus();
                 openFolder();
@@ -128,8 +126,9 @@ public class ApplicationController {
             pattern.requestFocus();
             return;
         }
+        treeController = new TreeController(fileTree, folder);
         log.info("Trying to start search");
-        startSearch();
+        FileManager.getResults(extention.getText(), pattern.getText(), folder, this::consumeFileInfo);
     }
 
     @FXML
@@ -145,6 +144,6 @@ public class ApplicationController {
         }
         folder = newFolder;
         filepath.setText(folder.getAbsolutePath());
-        log.info("Selected folder" + folder.getAbsolutePath());
+        log.info("Selected folder " + folder.getAbsolutePath());
     }
 }

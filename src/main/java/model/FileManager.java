@@ -17,22 +17,21 @@ public class FileManager {
     private String pattern;
     private File directory;
     private TextFinder finder;
+    private Consumer<File> toDo;
 
-    private QueueConsumer<FileInfo> consumer;
     private final ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-    private final BlockingQueue<FileInfo> res = new LinkedBlockingQueue<>();
-
+    private ConcurrentHashMap<File,Integer[]> fileInfos = new ConcurrentHashMap<>();
     private static FileManager fileManager;
 
-    private FileManager(String extention, String pattern, File directory, Consumer<FileInfo> toDo) {
+    private FileManager(String extention, String pattern, File directory, Consumer<File> toDo) {
         this.extention = extention;
         this.pattern = pattern;
         this.directory = directory;
         finder = new TextFinder(pattern);
-        consumer = new QueueConsumer<>(toDo, res);
+        this.toDo = toDo;
     }
 
-    public static void getResults(String extention, String pattern, File directory, Consumer<FileInfo> toDo) {
+    public static void getResults(String extention, String pattern, File directory, Consumer<File> toDo) {
         if ((fileManager == null) || !fileManager.extention.equals(extention) ||
                 (fileManager.directory != directory) || !fileManager.pattern.equals(pattern)) {
             if (fileManager != null) close();
@@ -45,29 +44,33 @@ public class FileManager {
         log.warn("Closing search");
         fileManager.executorService.shutdownNow();
         fileManager.finder.close();
-        fileManager.consumer.close();
     }
 
     private void startSearch() {
-        log.info("*******************************");
         log.info("Search started");
-        log.info("*******************************");
         List<File> files = new FileFinder(directory, extention).find();
-        executorService.submit(consumer);
         for (File f : files)
             executorService.submit(() -> {
                 try {
                     log.debug("Search pattern in "+f.getAbsolutePath());
                     Reader reader = new FileReader(f);
                     List<Integer> indices = finder.find(reader);
-                    if ((indices != null) && !indices.isEmpty())
-                        res.add(new FileInfo(f, indices));
+                    if ((indices != null) && !indices.isEmpty()){
+                        toDo.accept(f);
+                        Integer[] entries = new Integer[indices.size()];
+                        entries = indices.toArray(entries);
+                        fileInfos.put(f,entries);
+                    }
                 } catch (IOException ex) {
                     ex.printStackTrace();
                 }
             });
-        log.info("*******************************");
         log.info("Search ended");
-        log.info("*******************************");
+    }
+    public static Integer[] getEntries(File file){
+        return fileManager.fileInfos.get(file);
+    }
+    public static String getPattern(){
+        return fileManager.pattern;
     }
 }

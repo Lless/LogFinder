@@ -17,7 +17,7 @@ class TextFinder {
 
     TextFinder(String pattern) {
         this.pattern = pattern;
-        log.debug("trying to find pattern: " + pattern);
+        log.debug("Trying to find pattern: " + pattern);
     }
 
     private final String pattern;
@@ -37,10 +37,7 @@ class TextFinder {
             while ((haveRead = reader.read(buf, 0, buf.length)) != -1) {
                 buf = Arrays.copyOfRange(buf, 0, haveRead);//actualize buffer length
                 String string = new StringBuffer().append(smBuf).append(buf).toString();
-                /*synchronized (TextFinder.class) {
-                    System.out.println();
-                    System.out.println(string + "nnn" + Long.toString(offset));
-                }*/
+                log.trace("\nBuffer: " + string + "\nHas offset " + Long.toString(offset) + "\n\n");
                 final int strLen = string.length();
                 int currentIndex = -1;
                 do { // do-while to find all inclusions in buffer
