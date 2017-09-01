@@ -1,5 +1,7 @@
 package controller;
 
+import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import org.fxmisc.richtext.InlineCssTextArea;
@@ -10,6 +12,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.function.BiConsumer;
 
 class TabController {
     private static final Logger log = LoggerFactory.getLogger(TabController.class);
@@ -21,13 +25,14 @@ class TabController {
     private InlineCssTextArea textArea;
     private Tab tab;
 
-    TabController(TabPane tabPane, File file, Integer[] entries, int markLength) {
+    TabController(TabPane tabPane, File file, Integer[] entries, int markLength, BiConsumer<Tab, File> onclose) {
         Tab tab = new Tab();
         tab.setText(file.getName());
         InlineCssTextArea text = new InlineCssTextArea();
         text.editableProperty().setValue(false);
         text.wrapTextProperty().setValue(true);
         tab.setContent(text);
+        tab.setOnClosed((event) -> onclose.accept(tab, file));
         tabPane.getTabs().add(tab);
         tabPane.getSelectionModel().select(tab);
         curIndex = 0;
@@ -81,16 +86,29 @@ class TabController {
     }
 
     void setText() {
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader(file));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                textArea.appendText(line);
-                textArea.appendText("\n");
+        Task<String> task = new Task<String>() {
+            @Override
+            protected String call() throws Exception {
+                try (FileReader fileReader = new FileReader(file); BufferedReader reader = new BufferedReader(fileReader)) {
+                    char[] buf = new char[10 * 1024 * 1024];
+                    int haveRead;
+                    StringBuilder sb = new StringBuilder();
+                    while ((haveRead = reader.read(buf)) != -1) {
+                        if (haveRead != buf.length)
+                            buf = Arrays.copyOf(buf, haveRead);
+                        sb.append(buf);
+                    }
+                    Platform.runLater(() -> textArea.appendText(sb.toString()));
+                    log.info("Displaying text completed");
+                    return sb.toString();
+                } catch (IOException e) {
+                    log.error("Error while reading file", e);
+                    return null;
+                }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        };
+        Thread th = new Thread(task);
+        th.setDaemon(true);
+        th.start();
     }
-
 }

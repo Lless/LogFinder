@@ -41,4 +41,12 @@ public class TextFinderTest {
         List<Integer> result = new TextFinder(pattern).find(text);
         assertFalse(result.isEmpty());
     }
+
+    @Test
+    public void findInEmptyText(){
+        Reader text = new StringReader("");
+        String pattern = "a";
+        List<Integer> result = new TextFinder(pattern).find(text);
+        assertTrue(result.isEmpty());
+    }
 }

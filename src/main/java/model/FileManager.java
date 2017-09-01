@@ -57,6 +57,7 @@ public class FileManager {
                     List<Integer> indices = finder.find(reader);
                     if ((indices != null) && !indices.isEmpty()){
                         doWithResults.accept(f);
+                        log.info("Pattern founded in "+f.getAbsolutePath());
                         Integer[] entries = new Integer[indices.size()];
                         entries = indices.toArray(entries);
                         fileInfos.put(f,entries);

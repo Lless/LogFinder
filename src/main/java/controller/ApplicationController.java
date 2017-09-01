@@ -14,7 +14,6 @@ import java.util.Map;
 
 
 public class ApplicationController {
-    private static final Logger log = LoggerFactory.getLogger(ApplicationController.class);
     @FXML
     private TextField extention;
 
@@ -39,6 +38,8 @@ public class ApplicationController {
     @FXML
     private Button selectAll;
 
+    private static final Logger log = LoggerFactory.getLogger(ApplicationController.class);
+
     private File folder;
     private Map<Tab, TabController> tabControllersMap = new HashMap<>();
     private Map<File, Tab> tabFinder = new HashMap<>();
@@ -47,36 +48,8 @@ public class ApplicationController {
     @FXML
     private void initialize() {
         fileTree.getSelectionModel().selectedItemProperty().addListener(
-                (observable, oldvalue, newvalue) -> setText(newvalue));
+                (observable, oldvalue, newvalue) -> showText(newvalue));
         Platform.runLater(() -> filepath.requestFocus());
-        tabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldvalue, newvalue) -> {
-            if (tabPane.getTabs().isEmpty())
-                disableButtons(true);
-        });
-    }
-
-
-    private void disableButtons(boolean flag) {
-        log.debug("Buttons " + (flag ? "disabled" : "enabled"));
-        next.disableProperty().setValue(flag);
-        prev.disableProperty().setValue(flag);
-        selectAll.disableProperty().setValue(flag);
-    }
-
-    private void setText(TreeItem<String> item) {
-        disableButtons(false);
-        File file = treeController.getFile(item);
-        log.info("File selected: " + file.getAbsolutePath());
-        if (tabFinder.containsKey(file)) {
-            Tab tab = tabFinder.get(file);
-            tabPane.getSelectionModel().select(tab);
-            return;
-        }
-        TabController controller = new TabController(tabPane, file, FileManager.getEntries(file), FileManager.getPattern().length());
-        tabControllersMap.put(controller.getTab(), controller);
-        tabFinder.put(file, controller.getTab());
-        controller.setText();
-
     }
 
     @FXML
@@ -100,10 +73,20 @@ public class ApplicationController {
         log.info("btnSelectAll pressed");
     }
 
-    private void addFile(File f) {
-        Platform.runLater(
-                () -> treeController.addFile(f)
-        );
+    @FXML
+    private void openFolder() {
+        DirectoryChooser chooser = new DirectoryChooser();
+        chooser.setTitle("Choose file folder");
+        if (folder != null) chooser.setInitialDirectory(folder);
+        log.info("Choose folder dialog displayed");
+        File newFolder = chooser.showDialog(null);
+        if (newFolder == null) {
+            log.info("Folder not selected");
+            return;
+        }
+        folder = newFolder;
+        filepath.setText(folder.getAbsolutePath());
+        log.info("Selected folder " + folder.getAbsolutePath());
     }
 
     @FXML
@@ -138,23 +121,43 @@ public class ApplicationController {
             return;
         }
         treeController = new TreeController(fileTree, folder);
+        tabFinder.clear();
         log.info("Trying to start search");
         FileManager.getResults(extention.getText(), pattern.getText(), folder, this::addFile);
     }
 
-    @FXML
-    private void openFolder() {
-        DirectoryChooser chooser = new DirectoryChooser();
-        chooser.setTitle("Choose file folder");
-        if (folder != null) chooser.setInitialDirectory(folder);
-        log.info("Choose folder dialog displayed");
-        File newFolder = chooser.showDialog(null);
-        if (newFolder == null) {
-            log.info("Folder not selected");
+    private void addFile(File f) {
+        Platform.runLater(
+                () -> treeController.addFile(f)
+        );
+    }
+
+    private void disableButtons(boolean flag) {
+        log.debug("Buttons " + (flag ? "disabled" : "enabled"));
+        next.disableProperty().setValue(flag);
+        prev.disableProperty().setValue(flag);
+        selectAll.disableProperty().setValue(flag);
+    }
+
+    private void onCloseTab(Tab tab, File file) {
+        tabControllersMap.remove(tab);
+        tabFinder.remove(file,tab);
+        if (tabPane.getTabs().isEmpty())
+            disableButtons(true);
+    }
+
+    private void showText(TreeItem<String> item) {
+        disableButtons(false);
+        File file = treeController.getFile(item);
+        log.info("File selected: " + file.getAbsolutePath());
+        if (tabFinder.containsKey(file)) {
+            Tab tab = tabFinder.get(file);
+            tabPane.getSelectionModel().select(tab);
             return;
         }
-        folder = newFolder;
-        filepath.setText(folder.getAbsolutePath());
-        log.info("Selected folder " + folder.getAbsolutePath());
+        TabController controller = new TabController(tabPane, file, FileManager.getEntries(file), FileManager.getPattern().length(), this::onCloseTab);
+        tabControllersMap.put(controller.getTab(), controller);
+        tabFinder.put(file, controller.getTab());
+        controller.setText();
     }
 }
