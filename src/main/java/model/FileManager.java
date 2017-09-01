@@ -13,22 +13,22 @@ import java.util.function.Consumer;
 
 public class FileManager {
     private static final Logger log = LoggerFactory.getLogger(FileManager.class);
-    private String extention;
-    private String pattern;
-    private File directory;
+    private final String extention;
+    private final String pattern;
+    private final File directory;
+    private final Consumer<File> doWithResults;
     private TextFinder finder;
-    private Consumer<File> toDo;
 
     private final ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
     private ConcurrentHashMap<File,Integer[]> fileInfos = new ConcurrentHashMap<>();
     private static FileManager fileManager;
 
-    private FileManager(String extention, String pattern, File directory, Consumer<File> toDo) {
+    private FileManager(String extention, String pattern, File directory, Consumer<File> doWithResults) {
         this.extention = extention;
         this.pattern = pattern;
         this.directory = directory;
         finder = new TextFinder(pattern);
-        this.toDo = toDo;
+        this.doWithResults = doWithResults;
     }
 
     public static void getResults(String extention, String pattern, File directory, Consumer<File> toDo) {
@@ -36,7 +36,7 @@ public class FileManager {
                 (fileManager.directory != directory) || !fileManager.pattern.equals(pattern)) {
             if (fileManager != null) close();
             fileManager = new FileManager(extention, pattern, directory, toDo);
-            fileManager.startSearch();
+            fileManager.executorService.submit(()->fileManager.startSearch());
         }
     }
 
@@ -56,7 +56,7 @@ public class FileManager {
                     Reader reader = new FileReader(f);
                     List<Integer> indices = finder.find(reader);
                     if ((indices != null) && !indices.isEmpty()){
-                        toDo.accept(f);
+                        doWithResults.accept(f);
                         Integer[] entries = new Integer[indices.size()];
                         entries = indices.toArray(entries);
                         fileInfos.put(f,entries);

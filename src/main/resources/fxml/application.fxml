@@ -80,7 +80,7 @@
                     <Insets bottom="4.0" left="5.0" />
                 </StackPane.margin>
             </Label>
-            <Button defaultButton="true" maxHeight="16.0" maxWidth="16.0" mnemonicParsing="false" onAction="#checkFields" StackPane.alignment="BOTTOM_RIGHT">
+            <Button defaultButton="true" maxHeight="16.0" maxWidth="16.0" mnemonicParsing="false" onAction="#start" StackPane.alignment="BOTTOM_RIGHT">
                 <graphic>
                     <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
                         <Image url="@/png/go.png" />

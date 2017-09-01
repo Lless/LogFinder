@@ -40,7 +40,8 @@ public class ApplicationController {
     private Button selectAll;
 
     private File folder;
-    private Map<Tab, TabController> tabMap = new HashMap<>();
+    private Map<Tab, TabController> tabControllersMap = new HashMap<>();
+    private Map<File, Tab> tabFinder = new HashMap<>();
     private TreeController treeController;
 
     @FXML
@@ -64,39 +65,49 @@ public class ApplicationController {
 
     private void setText(TreeItem<String> item) {
         disableButtons(false);
-        File selected = treeController.getFile(item);
-        log.info("File selected: " + selected.getAbsolutePath());
-        TabController controller = new TabController(tabPane, selected, FileManager.getEntries(selected), FileManager.getPattern().length());
-        tabMap.put(controller.getTab(), controller);
+        File file = treeController.getFile(item);
+        log.info("File selected: " + file.getAbsolutePath());
+        if (tabFinder.containsKey(file)) {
+            Tab tab = tabFinder.get(file);
+            tabPane.getSelectionModel().select(tab);
+            return;
+        }
+        TabController controller = new TabController(tabPane, file, FileManager.getEntries(file), FileManager.getPattern().length());
+        tabControllersMap.put(controller.getTab(), controller);
+        tabFinder.put(file, controller.getTab());
         controller.setText();
+
     }
 
     @FXML
     private void showNext() {
-        tabMap.get(tabPane.getSelectionModel().getSelectedItem()).markNext();
+        Tab selected = tabPane.getSelectionModel().getSelectedItem();
+        tabControllersMap.get(selected).markNext();
         log.info("bthNext pressed");
     }
 
     @FXML
     private void showPrev() {
-        tabMap.get(tabPane.getSelectionModel().getSelectedItem()).markPrev();
+        Tab selected = tabPane.getSelectionModel().getSelectedItem();
+        tabControllersMap.get(selected).markPrev();
         log.info("btnPrev pressed");
     }
 
     @FXML
     private void selectAll() {
-        tabMap.get(tabPane.getSelectionModel().getSelectedItem()).markAll();
+        Tab selected = tabPane.getSelectionModel().getSelectedItem();
+        tabControllersMap.get(selected).markAll();
         log.info("btnSelectAll pressed");
     }
 
-    private void consumeFileInfo(File info) {
+    private void addFile(File f) {
         Platform.runLater(
-                () -> treeController.addFile(info)
+                () -> treeController.addFile(f)
         );
     }
 
     @FXML
-    private void checkFields() {
+    private void start() {
         log.info("btnStart pressed");
         if (extention.getText().isEmpty()) {
             extention.requestFocus();
@@ -128,7 +139,7 @@ public class ApplicationController {
         }
         treeController = new TreeController(fileTree, folder);
         log.info("Trying to start search");
-        FileManager.getResults(extention.getText(), pattern.getText(), folder, this::consumeFileInfo);
+        FileManager.getResults(extention.getText(), pattern.getText(), folder, this::addFile);
     }
 
     @FXML
