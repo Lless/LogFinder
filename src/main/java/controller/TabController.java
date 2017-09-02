@@ -28,15 +28,10 @@ class TabController {
     TabController(TabPane tabPane, File file, Integer[] entries, int markLength, BiConsumer<Tab, File> onclose) {
         Tab tab = new Tab();
         tab.setText(file.getName());
-        InlineCssTextArea text = new InlineCssTextArea();
-        text.editableProperty().setValue(false);
-        text.wrapTextProperty().setValue(true);
-        tab.setContent(text);
         tab.setOnClosed((event) -> onclose.accept(tab, file));
         tabPane.getTabs().add(tab);
         tabPane.getSelectionModel().select(tab);
         curIndex = 0;
-        textArea = text;
         this.markLength = markLength;
         this.tab = tab;
         this.entries = entries;
@@ -60,11 +55,8 @@ class TabController {
     }
 
     void markAll() {
-        unmark();
-        if (!allMarked)
-            for (int i = 0; i < entries.length; i++)
-                mark(i);
-        mark(curIndex);
+        textArea.setStyle(0, textArea.getText().length(),
+                allMarked ? "" : "-fx-background-fill: lightblue;");
         allMarked = !allMarked;
     }
 
@@ -74,10 +66,7 @@ class TabController {
     }
 
     private void unmark() {
-        if (allMarked) {
-            for (Integer from : entries)
-                setStyle(from, "");
-        }
+        if (allMarked) markAll();
         setStyle(entries[curIndex], "");
     }
 
@@ -98,7 +87,11 @@ class TabController {
                             buf = Arrays.copyOf(buf, haveRead);
                         sb.append(buf);
                     }
-                    Platform.runLater(() -> textArea.appendText(sb.toString()));
+                    textArea = new InlineCssTextArea();
+                    textArea.appendText(sb.toString());
+                    textArea.editableProperty().setValue(false);
+                    textArea.wrapTextProperty().setValue(true);
+                    Platform.runLater(()->tab.setContent(textArea));
                     log.info("Displaying text completed");
                     return sb.toString();
                 } catch (IOException e) {

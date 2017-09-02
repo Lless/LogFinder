@@ -1,5 +1,4 @@
 Fix bug with not finding files in big folder
-Fix bug with freezing while looking throw big file
 refactor code
 Test FileManager
 Test ApplicationController
