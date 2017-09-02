@@ -121,7 +121,8 @@ public class ApplicationController {
             return;
         }
         treeController = new TreeController(fileTree, folder);
-        tabFinder.clear();
+        if (!pattern.getText().equals(FileManager.getPattern()))
+            tabFinder.clear();
         log.info("Trying to start search");
         FileManager.getResults(extention.getText(), pattern.getText(), folder, this::addFile);
     }

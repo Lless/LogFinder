@@ -1,4 +1,3 @@
-Fix bug with not finding files in big folder
 refactor code
 Test FileManager
 Test ApplicationController

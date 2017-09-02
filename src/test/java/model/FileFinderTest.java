@@ -31,7 +31,8 @@ public class FileFinderTest {
             List<File> expected = new ArrayList<>();
             expected.add(first);
             expected.add(third);
-            List<File> actual = new FileFinder(maindir,pattern).find();
+            List<File> actual = new ArrayList<>();
+            new FileFinder(maindir,pattern).find(actual::add);
             assertEquals(expected.size(),actual.size());
             assertTrue(actual.containsAll(expected));
         } catch (IOException e) {
