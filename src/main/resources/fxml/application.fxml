@@ -12,89 +12,95 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.StackPane?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.ApplicationController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0"
+            prefWidth="800.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="controller.ApplicationController">
 
     <left>
-        <TreeView fx:id="fileTree" prefHeight="305.0" prefWidth="200.0" showRoot="false" BorderPane.alignment="CENTER" />
+        <TreeView fx:id="fileTree" prefHeight="305.0" prefWidth="200.0" showRoot="false" BorderPane.alignment="CENTER"/>
     </left>
     <center>
         <BorderPane prefHeight="341.0" prefWidth="400.0" BorderPane.alignment="CENTER">
             <bottom>
                 <ButtonBar buttonMinWidth="40.0" prefHeight="14.0" prefWidth="400.0" BorderPane.alignment="CENTER">
                     <buttons>
-                        <Button fx:id="selectAll" disable="true" mnemonicParsing="false" onAction="#selectAll" prefHeight="33.0" text="Select all" />
-                        <Button fx:id="prev" disable="true" mnemonicParsing="false" onAction="#showPrev" prefHeight="0.0" prefWidth="63.0">
+                        <Button fx:id="all" disable="true" mnemonicParsing="false" prefHeight="33.0" text="Select all"/>
+                        <Button fx:id="prev" disable="true" mnemonicParsing="false" prefHeight="0.0" prefWidth="63.0">
                             <graphic>
                                 <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
-                                    <Image url="@/png/back.png" />
+                                    <Image url="@/png/back.png"/>
                                 </ImageView>
                             </graphic>
                         </Button>
-                        <Button fx:id="next" contentDisplay="CENTER" disable="true" mnemonicParsing="false" onAction="#showNext">
+                        <Button fx:id="next" contentDisplay="CENTER" disable="true" mnemonicParsing="false">
                             <graphic>
                                 <ImageView fitHeight="24" fitWidth="24" pickOnBounds="true" preserveRatio="true">
-                                    <Image url="@/png/forward.png" />
+                                    <Image url="@/png/forward.png"/>
                                 </ImageView>
                             </graphic>
                         </Button>
                     </buttons>
                 </ButtonBar>
             </bottom>
-         <center>
-            <TabPane fx:id="tabPane" prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="ALL_TABS" BorderPane.alignment="CENTER" />
-         </center>
+            <center>
+                <TabPane fx:id="tabPane" prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="ALL_TABS"
+                         BorderPane.alignment="CENTER"/>
+            </center>
         </BorderPane>
     </center>
     <top>
         <StackPane prefHeight="50.0" prefWidth="600.0" BorderPane.alignment="CENTER">
             <TextField fx:id="pattern" prefHeight="25.0" prefWidth="486.0" StackPane.alignment="BOTTOM_CENTER">
                 <StackPane.margin>
-                    <Insets left="140.0" right="35.0" />
+                    <Insets left="140.0" right="35.0"/>
                 </StackPane.margin>
             </TextField>
             <TextField fx:id="filepath" prefHeight="25.0" prefWidth="600.0" StackPane.alignment="TOP_RIGHT">
                 <StackPane.margin>
-                    <Insets left="195.0" />
+                    <Insets left="195.0"/>
                 </StackPane.margin>
             </TextField>
-            <TextField fx:id="extension" maxWidth="50.0" prefHeight="25.0" prefWidth="60.0" text="log" StackPane.alignment="TOP_LEFT">
+            <TextField fx:id="extension" maxWidth="50.0" prefHeight="25.0" prefWidth="60.0" text="log"
+                       StackPane.alignment="TOP_LEFT">
                 <StackPane.margin>
-                    <Insets left="70.0" />
+                    <Insets left="70.0"/>
                 </StackPane.margin>
             </TextField>
             <Label text="Search for *." StackPane.alignment="TOP_LEFT">
                 <padding>
-                    <Insets left="5.0" top="5.0" />
+                    <Insets left="5.0" top="5.0"/>
                 </padding>
             </Label>
             <Label alignment="CENTER" text=" files in" StackPane.alignment="TOP_LEFT">
                 <padding>
-                    <Insets top="5.0" />
+                    <Insets top="5.0"/>
                 </padding>
                 <StackPane.margin>
-                    <Insets left="120.0" />
+                    <Insets left="120.0"/>
                 </StackPane.margin>
             </Label>
             <Label text="Files should contain text:" StackPane.alignment="BOTTOM_LEFT">
                 <StackPane.margin>
-                    <Insets bottom="4.0" left="5.0" />
+                    <Insets bottom="4.0" left="5.0"/>
                 </StackPane.margin>
             </Label>
-            <Button defaultButton="true" maxHeight="16.0" maxWidth="16.0" mnemonicParsing="false" onAction="#start" StackPane.alignment="BOTTOM_RIGHT">
+            <Button defaultButton="true" maxHeight="16.0" maxWidth="16.0" mnemonicParsing="false" onAction="#start"
+                    StackPane.alignment="BOTTOM_RIGHT">
                 <graphic>
                     <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
-                        <Image url="@/png/go.png" />
+                        <Image url="@/png/go.png"/>
                     </ImageView>
                 </graphic>
             </Button>
-            <Button maxHeight="24.0" maxWidth="24.0" mnemonicParsing="false" onAction="#openFolder" StackPane.alignment="TOP_LEFT">
+            <Button maxHeight="24.0" maxWidth="24.0" mnemonicParsing="false" onAction="#openFolder"
+                    StackPane.alignment="TOP_LEFT">
                 <graphic>
                     <ImageView fitHeight="24.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
-                        <Image url="@/png/openFolder.png" />
+                        <Image url="@/png/openFolder.png"/>
                     </ImageView>
                 </graphic>
                 <StackPane.margin>
-                    <Insets left="160.0" />
+                    <Insets left="160.0"/>
                 </StackPane.margin>
             </Button>
         </StackPane>

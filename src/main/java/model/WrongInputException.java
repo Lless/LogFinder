@@ -1,4 +1,4 @@
-package controller;
+package model;
 
 import javafx.scene.control.TextInputControl;
 
@@ -10,7 +10,7 @@ public class WrongInputException extends Exception {
         this.control = control;
     }
 
-    TextInputControl getControl() {
+    public TextInputControl getControl() {
         return control;
     }
 }

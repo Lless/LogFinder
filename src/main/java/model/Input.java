@@ -1,6 +1,5 @@
 package model;
 
-import controller.WrongInputException;
 import javafx.scene.control.TextField;
 
 import java.io.File;

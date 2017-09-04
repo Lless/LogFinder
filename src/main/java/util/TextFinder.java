@@ -1,4 +1,4 @@
-package model;
+package util;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,10 +12,10 @@ import java.util.List;
 
 import static java.lang.Math.max;
 
-class TextFinder {
+public class TextFinder {
     private static final Logger log = LoggerFactory.getLogger(TextFinder.class);
 
-    TextFinder(String pattern) {
+    public TextFinder(String pattern) {
         this.pattern = pattern;
         log.debug("Trying to find pattern: " + pattern);
     }
@@ -23,7 +23,7 @@ class TextFinder {
     private final String pattern;
     private volatile boolean stop = false;
 
-    List<Integer> find(Reader textReader) {
+    public List<Integer> find(Reader textReader) {
         char[] buf = new char[max(pattern.length() * 5, 1024)]; //keeps loaded chars
         char[] smBuf = new char[pattern.length() - 1];//keeps last part of previous buffer
 
@@ -60,7 +60,7 @@ class TextFinder {
         return indices;
     }
 
-    void close() {
+    public void close() {
         stop = true;
     }
 }

@@ -1,4 +1,4 @@
-package model;
+package util;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,21 +10,21 @@ import java.util.List;
 import java.util.Queue;
 import java.util.function.Consumer;
 
-class FileFinder {
+public class FileFinder {
     private static final Logger log = LoggerFactory.getLogger(FileFinder.class);
     private File dir;
     private String extention;
     private List<File> files;
     private Queue<File> dirList;
 
-    FileFinder(File dir, String extention) {
+    public FileFinder(File dir, String extention) {
         this.dir = dir;
         this.extention = extention;
         dirList = new LinkedList<>();
         dirList.add(dir);
     }
 
-    void find(Consumer<File> toDo) {
+    public void find(Consumer<File> toDo) {
         log.info("Trying to find *." + extention + " files in " + dir.getAbsolutePath());
         while (!dirList.isEmpty()) {
             File curDir = dirList.poll();
@@ -34,7 +34,7 @@ class FileFinder {
                     toDo.accept(f);
                 dirList.addAll(Arrays.asList(curDir.listFiles(File::isDirectory)));
             } catch (NullPointerException e) {
-                log.error("problem while looking in dir " + curDir.getName(), e);
+                log.warn("Exception while looking in dir " + curDir.getName() + ":" + e.getMessage(), e);
             }
         }
     }

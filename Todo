@@ -1,7 +1,4 @@
-refactor code
-Test FileManager
-Test ApplicationController
-Test TabController
-Test TreeController
-Change Textfinder implementation
+Fix GUI Freezing while opening big file
+Test application
+Change TextFinder implementation
 implement opening big files

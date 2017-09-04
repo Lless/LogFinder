@@ -1,6 +1,7 @@
-package model;
+package util;
 
 import org.junit.Test;
+import util.TextFinder;
 
 import java.io.Reader;
 import java.io.StringReader;
