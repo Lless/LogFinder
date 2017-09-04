@@ -8,36 +8,37 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
 public class FileManager {
     private static final Logger log = LoggerFactory.getLogger(FileManager.class);
-    private final String extention;
-    private final String pattern;
-    private final File directory;
-    private final Consumer<File> doWithResults;
+    private Input input;
+    private Consumer<File> doWithResults;
     private TextFinder finder;
 
     private final ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
     private ConcurrentHashMap<File, Integer[]> fileInfos = new ConcurrentHashMap<>();
     private static FileManager fileManager;
 
-    private FileManager(String extention, String pattern, File directory, Consumer<File> doWithResults) {
-        this.extention = extention;
-        this.pattern = pattern;
-        this.directory = directory;
-        finder = new TextFinder(pattern);
+    private FileManager(Input input, Consumer<File> doWithResults) {
+        this.input = input;
+        finder = new TextFinder(input.getPattern());
         this.doWithResults = doWithResults;
     }
 
-    public static void getResults(String extention, String pattern, File directory, Consumer<File> toDo) {
-        if ((fileManager == null) || !fileManager.extention.equals(extention) ||
-                (fileManager.directory != directory) || !fileManager.pattern.equals(pattern)) {
-            if (fileManager != null) close();
-            fileManager = new FileManager(extention, pattern, directory, toDo);
-            fileManager.executorService.submit(() -> fileManager.startSearch());
+    public static void startSearch(Input input, Consumer<File> toDo) {
+        if (fileManager != null) {
+            if (fileManager.input.equals(input)) return;
+            else close();
         }
+        fileManager = new FileManager(input, toDo);
+        log.info("Search started");
+        fileManager.executorService.submit(
+                () -> new FileFinder(input.getFolder(), input.getExtension()).find(fileManager::searchTextInFile)
+        );
     }
 
     public static void close() {
@@ -46,11 +47,7 @@ public class FileManager {
         fileManager.finder.close();
     }
 
-    private void startSearch() {
-        log.info("Search started");
-        new FileFinder(directory, extention).find(this::searchTextInFile);
-    }
-    private void searchTextInFile(File f){
+    private void searchTextInFile(File f) {
         executorService.submit(() -> {
             try {
                 log.debug("Search pattern in " + f.getAbsolutePath());
@@ -68,11 +65,12 @@ public class FileManager {
             }
         });
     }
+
     public static Integer[] getEntries(File file) {
         return (fileManager != null) ? fileManager.fileInfos.get(file) : null;
     }
 
-    public static String getPattern() {
-        return (fileManager != null) ? fileManager.pattern : null;
+    public static Input getInput() {
+        return (fileManager != null) ? fileManager.input : null;
     }
 }

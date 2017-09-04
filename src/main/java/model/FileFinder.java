@@ -38,19 +38,4 @@ class FileFinder {
             }
         }
     }
-
-    /*List<File> find() {
-        log.info("Trying to find *." + extention + " files in " + dir.getAbsolutePath());
-        if (files == null)
-            try {
-                files = Files.walk(dir.toPath())
-                        .filter(Files::isRegularFile)
-                        .map(Path::toFile)
-                        .filter(f -> f.getName().matches(".*\\." + extention))
-                        .collect(Collectors.toList());
-            } catch (IOException e) {
-                log.error("Error in file finding", e);
-            }
-        return files;
-    }*/
 }

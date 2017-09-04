@@ -5,6 +5,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.DirectoryChooser;
 import model.FileManager;
+import model.Input;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,7 +16,7 @@ import java.util.Map;
 
 public class ApplicationController {
     @FXML
-    private TextField extention;
+    private TextField extension;
 
     @FXML
     private TextField pattern;
@@ -40,7 +41,6 @@ public class ApplicationController {
 
     private static final Logger log = LoggerFactory.getLogger(ApplicationController.class);
 
-    private File folder;
     private Map<Tab, TabController> tabControllersMap = new HashMap<>();
     private Map<File, Tab> tabFinder = new HashMap<>();
     private TreeController treeController;
@@ -77,54 +77,30 @@ public class ApplicationController {
     private void openFolder() {
         DirectoryChooser chooser = new DirectoryChooser();
         chooser.setTitle("Choose file folder");
-        if (folder != null) chooser.setInitialDirectory(folder);
+        File currentFolder = new File(filepath.getText());
+        if (currentFolder.exists()) chooser.setInitialDirectory(currentFolder);
         log.info("Choose folder dialog displayed");
         File newFolder = chooser.showDialog(null);
-        if (newFolder == null) {
-            log.info("Folder not selected");
-            return;
-        }
-        folder = newFolder;
-        filepath.setText(folder.getAbsolutePath());
-        log.info("Selected folder " + folder.getAbsolutePath());
+        if (newFolder != null) filepath.setText(newFolder.toString());
     }
 
     @FXML
     private void start() {
         log.info("btnStart pressed");
-        if (extention.getText().isEmpty()) {
-            extention.requestFocus();
-            log.debug("Extention is empty");
-            return;
+        try {
+            Input input = new Input();
+            input.setExtension(extension);
+            input.setFolder(filepath);
+            input.setPattern(pattern);
+            treeController = new TreeController(fileTree, input.getFolder());
+            if ((FileManager.getInput() != null) && (input.getPattern().equals(FileManager.getInput().getPattern())))
+                tabFinder.clear();
+            log.info("Trying to start search");
+            FileManager.startSearch(input, this::addFile);
+        } catch (WrongInputException e) {
+            log.info(e.getMessage());
+            e.getControl().requestFocus();
         }
-        if ((folder == null) ||
-                (!folder.getName().equals(filepath.getText()))) {
-            if (filepath.getText().isEmpty()) {
-                filepath.requestFocus();
-                log.debug("Folder not selected");
-                openFolder();
-                return;
-            }
-            File newDir = new File(filepath.getText());
-            if (!newDir.exists() || !(newDir.isDirectory())) {
-                log.info("Selected incorrect folder: " + filepath.getText());
-                filepath.setText("");
-                filepath.requestFocus();
-                openFolder();
-                return;
-            }
-            folder = newDir;
-        }
-        if (pattern.getText().isEmpty()) {
-            log.debug("Pattern is empty");
-            pattern.requestFocus();
-            return;
-        }
-        treeController = new TreeController(fileTree, folder);
-        if (!pattern.getText().equals(FileManager.getPattern()))
-            tabFinder.clear();
-        log.info("Trying to start search");
-        FileManager.getResults(extention.getText(), pattern.getText(), folder, this::addFile);
     }
 
     private void addFile(File f) {
@@ -142,7 +118,7 @@ public class ApplicationController {
 
     private void onCloseTab(Tab tab, File file) {
         tabControllersMap.remove(tab);
-        tabFinder.remove(file,tab);
+        tabFinder.remove(file, tab);
         if (tabPane.getTabs().isEmpty())
             disableButtons(true);
     }
@@ -150,13 +126,14 @@ public class ApplicationController {
     private void showText(TreeItem<String> item) {
         disableButtons(false);
         File file = treeController.getFile(item);
+        if (file == null) return;
         log.info("File selected: " + file.getAbsolutePath());
         if (tabFinder.containsKey(file)) {
             Tab tab = tabFinder.get(file);
             tabPane.getSelectionModel().select(tab);
             return;
         }
-        TabController controller = new TabController(tabPane, file, FileManager.getEntries(file), FileManager.getPattern().length(), this::onCloseTab);
+        TabController controller = new TabController(tabPane, file, FileManager.getEntries(file), FileManager.getInput().getPattern().length(), this::onCloseTab);
         tabControllersMap.put(controller.getTab(), controller);
         tabFinder.put(file, controller.getTab());
         controller.setText();

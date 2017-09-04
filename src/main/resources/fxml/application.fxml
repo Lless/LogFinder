@@ -57,7 +57,7 @@
                     <Insets left="195.0" />
                 </StackPane.margin>
             </TextField>
-            <TextField fx:id="extention" maxWidth="50.0" prefHeight="25.0" prefWidth="60.0" text="log" StackPane.alignment="TOP_LEFT">
+            <TextField fx:id="extension" maxWidth="50.0" prefHeight="25.0" prefWidth="60.0" text="log" StackPane.alignment="TOP_LEFT">
                 <StackPane.margin>
                     <Insets left="70.0" />
                 </StackPane.margin>
@@ -90,7 +90,7 @@
             <Button maxHeight="24.0" maxWidth="24.0" mnemonicParsing="false" onAction="#openFolder" StackPane.alignment="TOP_LEFT">
                 <graphic>
                     <ImageView fitHeight="24.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
-                        <Image url="@/png/openfolder.png" />
+                        <Image url="@/png/openFolder.png" />
                     </ImageView>
                 </graphic>
                 <StackPane.margin>
