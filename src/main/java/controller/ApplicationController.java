@@ -15,6 +15,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 
+import static java.lang.Thread.MAX_PRIORITY;
+
 public class ApplicationController {
     @FXML
     private TextField extension;
@@ -42,6 +44,7 @@ public class ApplicationController {
 
     @FXML
     private void initialize() {
+        Thread.currentThread().setPriority(MAX_PRIORITY);
         outputController = new OutputController(tabPane, next, prev, all);
         fileTree.getSelectionModel().selectedItemProperty().addListener(
                 (observable, oldvalue, newvalue) -> outputController.showText(treeController.getFile(newvalue)));

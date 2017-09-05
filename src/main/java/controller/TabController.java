@@ -101,7 +101,6 @@ class TabController {
             }
         };
         Thread th = new Thread(task);
-        th.setDaemon(true);
         th.start();
     }
 }

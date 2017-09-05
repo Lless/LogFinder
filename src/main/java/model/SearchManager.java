@@ -22,7 +22,7 @@ public class SearchManager {
     private Consumer<File> doWithResults;
     private TextFinder textFinder;
     private FileFinder fileFinder;
-    private final ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() - 1);
+    private final ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
     private ConcurrentHashMap<File, Integer[]> Entries = new ConcurrentHashMap<>();
 
     private static SearchManager searchManager;
