@@ -20,17 +20,24 @@ public class SearchManager {
 
     private Input input;
     private Consumer<File> doWithResults;
-
-    private TextFinder finder;
-    private final ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+    private TextFinder textFinder;
+    private FileFinder fileFinder;
+    private final ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() - 1);
     private ConcurrentHashMap<File, Integer[]> Entries = new ConcurrentHashMap<>();
 
     private static SearchManager searchManager;
 
     private SearchManager(Input input, Consumer<File> doWithResults) {
         this.input = input;
-        finder = new TextFinder(input.getPattern());
         this.doWithResults = doWithResults;
+        textFinder = new TextFinder(input.getPattern());
+        fileFinder = new FileFinder(input.getFolder(), input.getExtension());
+    }
+
+    private void startSearch() {
+        log.info("Search started");
+        searchManager.executorService.submit(
+                () -> fileFinder.find(searchManager::searchTextInFile));
     }
 
     public static void startSearch(Input input, Consumer<File> toDo) {
@@ -39,17 +46,26 @@ public class SearchManager {
             else close();
         }
         searchManager = new SearchManager(input, toDo);
-        log.info("Search started");
-        searchManager.executorService.submit(
-                () -> new FileFinder(input.getFolder(), input.getExtension()).find(searchManager::searchTextInFile)
-        );
+        searchManager.startSearch();
+    }
+
+    //for using in test
+    static void startSearch(Input input, Consumer<File> toDo, TextFinder textFinder, FileFinder fileFinder) {
+        if (searchManager != null) {
+            if (searchManager.input.equals(input)) return;
+            else close();
+        }
+        searchManager = new SearchManager(input, toDo);
+        searchManager.fileFinder = fileFinder;
+        searchManager.textFinder = textFinder;
+        searchManager.startSearch();
     }
 
     public static void close() {
         log.warn("Closing search");
         if (searchManager == null) return;
         searchManager.executorService.shutdownNow();
-        searchManager.finder.close();
+        searchManager.textFinder.close();
     }
 
     private void searchTextInFile(File f) {
@@ -57,7 +73,7 @@ public class SearchManager {
             try {
                 log.debug("Search pattern in " + f.getAbsolutePath());
                 Reader reader = new FileReader(f);
-                List<Integer> indices = finder.find(reader);
+                List<Integer> indices = textFinder.find(reader);
                 if ((indices != null) && !indices.isEmpty()) {
                     doWithResults.accept(f);
                     log.info("Pattern found in " + f.getAbsolutePath());

@@ -9,8 +9,8 @@ import org.junit.Test;
 import static org.junit.Assert.assertTrue;
 
 public class TreeItemComparatorTest {
-    private TreeItem<String> item1;
-    private TreeItem<String> item2;
+    private TreeItem<String> itemB;
+    private TreeItem<String> itemA;
 
     @BeforeClass
     public static void InitializeJavaFX(){
@@ -19,35 +19,34 @@ public class TreeItemComparatorTest {
 
     @Before
     public void initItems(){
-        item1 = new TreeItem<>("c");
-        item2 = new TreeItem<>("a");
+        itemB = new TreeItem<>("b");
+        itemA = new TreeItem<>("a");
     }
 
     @Test
     public void ItemWithChildIsFirst(){
-        TreeItem<String> child = new TreeItem<>("b");
-        item1.getChildren().add(child);
+        TreeItem<String> child = new TreeItem<>("c");
+        itemB.getChildren().add(child);
 
-        int result = new TreeItemComparator().compare(item1,item2);
+        int result = new TreeItemComparator().compare(itemB, itemA);
 
         assertTrue(result < 0);
     }
 
     @Test
     public void CompareNamesForLeafs(){
-        int result = new TreeItemComparator().compare(item1,item2);
+        int result = new TreeItemComparator().compare(itemB, itemA);
 
         assertTrue(result > 0);
     }
 
     @Test
     public void CompareNamesForBranches(){
-        TreeItem<String> child1 = new TreeItem<>("b");
-        item1.getChildren().add(child1);
-        TreeItem<String> child2 = new TreeItem<>("b");
-        item2.getChildren().add(child2);
+        TreeItem<String> child = new TreeItem<>("c");
+        itemB.getChildren().add(child);
+        itemA.getChildren().add(child);
 
-        int result = new TreeItemComparator().compare(item1,item2);
+        int result = new TreeItemComparator().compare(itemB, itemA);
 
         assertTrue(result > 0);
     }
